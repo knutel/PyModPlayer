@@ -8,7 +8,7 @@ sample_info = Struct("sample_info",
                 Embed(
                 BitStruct(None,
                           Padding(4),
-                          Nibble("fine_tune"))),
+                          Nibble("finetune"))),
                 UBInt8("volume"),
                 UBInt16("repeat_offset"),
                 UBInt16("repeat_length"))
@@ -40,7 +40,7 @@ major_effect = Enum(Nibble("major_effect"),
                     SetSpeed = 15)
 
 extended_effect = Enum(Nibble("extended_effect"),
-                       ToggleTilter = 0,
+                       ToggleFilter = 0,
                        FineslideUp = 1,
                        FineslideDown = 2,
                        ToggleGlissando = 3,
@@ -63,9 +63,9 @@ channel_data = BitStruct("channel_data",
                          major_effect,
                          Embed(IfThenElse(None, 
                                     lambda ctx: ctx.major_effect == "extended_effect",
-                                    Struct(None, extended_effect, Nibble("x")),
-                                    Struct(None, Nibble("x"), Nibble("y")))),
-                         Value("sample", lambda ctx: ctx.sample_hi << 4 | ctx.sample_lo)
+                                    Struct(None, extended_effect, Nibble("x"), Value("y", lambda ctx: None), Alias("effect", "extended_effect")),
+                                    Struct(None, Nibble("x"), Nibble("y"), Alias("effect", "major_effect")))),
+                         Value("sample", lambda ctx: ctx.sample_hi << 4 | ctx.sample_lo),
                         )
 
 patterns = Struct("patterns",
