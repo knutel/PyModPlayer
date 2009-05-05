@@ -23,38 +23,38 @@ def sample_length(ctx):
     return length
            
 major_effect = Enum(Nibble("major_effect"),
-                    arpeggio = 0,
-                    slide_up = 1,
-                    slide_down = 2,
-                    slide_to_note = 3,
-                    vibrato = 4,
-                    continue_slide_to_note_plus_volume_slide = 5,
-                    continue_vibrato_plus_volume_slide = 6,
-                    tremolo = 7,
-                    set_sample_offset = 9,
-                    volume_slide = 10,
-                    position_jump = 11,
-                    set_volume = 12,
-                    pattern_break = 13,
-                    extended_effect = 14,
-                    set_speed = 15)
+                    Arpeggio = 0,
+                    SlideUp = 1,
+                    SlideDown = 2,
+                    SlideToNote = 3,
+                    Vibrato = 4,
+                    ContinueSlideToNotePlusVolumeSlide = 5,
+                    ContinueVibratoPlusVolumeSlide = 6,
+                    Tremolo = 7,
+                    SetSampleOffset = 9,
+                    VolumeSlide = 10,
+                    PositionJump = 11,
+                    SetVolume = 12,
+                    PatternBreak = 13,
+                    extended_effect = 14, #This is never seen outside parser
+                    SetSpeed = 15)
 
 extended_effect = Enum(Nibble("extended_effect"),
-                       toggle_filter = 0,
-                       fineslide_up = 1,
-                       fineslide_down = 2,
-                       toggle_glissando = 3,
-                       set_vibrato_waveform = 4,
-                       set_finetune_value = 5,
-                       loop_pattern = 6,
-                       set_tremolo_waveform = 7,
-                       retrigger_sample = 9,
-                       fine_volume_slide_up = 10,
-                       fine_volume_slide_down = 11,
-                       cut_sample = 12,
-                       delay_sample = 13,
-                       delay_pattern = 14,
-                       invert_loop = 15)
+                       ToggleTilter = 0,
+                       FineslideUp = 1,
+                       FineslideDown = 2,
+                       ToggleGlissando = 3,
+                       SetVibratoWaveform = 4,
+                       SetFinetuneValue = 5,
+                       LoopPattern = 6,
+                       SetTremoloWaveform = 7,
+                       RetriggerSample = 9,
+                       FineVolumeSlideUp = 10,
+                       FineVolumeSlideDown = 11,
+                       CutSample = 12,
+                       DelaySample = 13,
+                       DelayPattern = 14,
+                       InvertLoop = 15)
     
 channel_data = BitStruct("channel_data",
                          Nibble("sample_hi"),
@@ -87,6 +87,6 @@ mod = Struct("mod",
 
 
 if __name__ == "__main__":
-    with file("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/AASULV.MOD", "rb") as f:
+    with file("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/MOUSEMOD.MOD", "rb") as f:
           print mod.parse_stream(f)
 
