@@ -2,16 +2,23 @@ from __future__ import with_statement
 
 from construct import *
 
+class WordsToBytesAdapter(Adapter):
+    def _decode(self, obj, ctx):
+        return obj * 2
+    
+    def _encode(self, obj, ctx):
+        return obj / 2
+
 sample_info = Struct("sample_info",
                 String("name", 22, padchar="\x00"),
-                UBInt16("length"),
+                WordsToBytesAdapter(UBInt16("length")),
                 Embed(
                 BitStruct(None,
                           Padding(4),
                           Nibble("finetune"))),
                 UBInt8("volume"),
-                UBInt16("repeat_offset"),
-                UBInt16("repeat_length"))
+                WordsToBytesAdapter(UBInt16("repeat_offset")),
+                WordsToBytesAdapter(UBInt16("repeat_length")))
      
 def sample_length(ctx):
     if not hasattr(ctx, "_sample_counter"):
