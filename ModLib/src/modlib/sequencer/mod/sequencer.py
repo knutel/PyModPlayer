@@ -1,26 +1,5 @@
-from bisect import bisect_left, bisect_right
 from audioop import mul
-
-class PeriodTable(object):
-    def __init__(self):
-        self.notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-        self.notes.reverse()
-    
-        self.periods = [856, 808, 762, 720, 678, 640, 604, 570, 538, 508, 480, 453,
-                        428, 404, 381, 360, 339, 320, 302, 285, 269, 254, 240, 226,
-                        214, 202, 190, 180, 170, 160, 151, 143, 135, 127, 120, 113]
-        self.periods.reverse()
-
-    def __getitem__(self, key):
-        if key == 0:
-            return "    "
-        index = (bisect_right(self.periods, key) + bisect_left(self.periods, key)) / 2
-        #print key, index
-        octave = index / 12 + 1
-        note = self.notes[index % 12]
-        return "%s-%i" % (note, octave) 
-        
-period_table = PeriodTable()
+from modlib.sequencer.mod.tables import period_table
 
 class Channel(object):
     def __init__(self, sequencer):
@@ -66,6 +45,7 @@ class Sequencer(object):
         self.sequence_index = -1
         self.division_index = 63
         self.pattern_index = self.module.pattern_sequence[self.sequence_index]
+        self.master_tick_counter = -1
         self.tick_counter = 5
         self.position_counter = -1
         
@@ -77,6 +57,11 @@ class Sequencer(object):
 
         self.ended = False
         
+        #Effects related
+        self.loop_pattern_counter = 0
+        self.loop_pattern_division_start = 0
+        self.loop_pattern_division_stop = 0
+        
     def tick(self):
         self.update_state()
         if not self.ended:
@@ -87,6 +72,7 @@ class Sequencer(object):
     def update_state(self):
         if not self.ended:
             self.tick_counter += 1
+            self.master_tick_counter += 1
             if self.tick_counter == self.ticks_per_division:
                 self.tick_counter = 0
                 self.division_index += 1
@@ -98,6 +84,9 @@ class Sequencer(object):
                         self.ended = True
                         return
                     self.pattern_index = self.module.pattern_sequence[self.sequence_index]
+                    self.loop_pattern_counter = 0
+                    self.loop_pattern_division_start = 0
+                    self.loop_pattern_division_stop = 0
                 for index, channel in enumerate(self.channels):
                     channel.new_note(self.module.patterns[self.pattern_index].divisions[self.division_index].channel_data[index])
                     

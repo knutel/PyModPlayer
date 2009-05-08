@@ -1,3 +1,4 @@
+from modlib.sequencer.mod.tables import period_table
         
 class ExtendedEffect(object):
     def __init__(self, x, channel, sequencer):
@@ -21,6 +22,15 @@ class Effect(ExtendedEffect):
         
 class Arpeggio(Effect):
     id = 0
+    
+    def tick(self):
+        if self.channel.period != 0:
+            if self.sequencer.master_tick_counter % 3 == 0:
+                self.channel.period = self.channel.note.period
+            if self.sequencer.master_tick_counter % 3 == 1:
+                self.channel.period = period_table.finetune(self.channel.note.period, self.x)
+            elif self.sequencer.master_tick_counter % 3 == 2:
+                self.channel.period = period_table.finetune(self.channel.note.period, self.y) 
 
 class SlideUp(Effect):
     id = 1
@@ -68,8 +78,22 @@ class PositionJump(Effect):
 class SetVolume(Effect):
     id = 12
 
+    def __init__(self, x, y, channel, sequencer):
+        super(SetVolume, self).__init__(x, y, channel, sequencer)
+        volume = max((min((64, x * 16 + y)), 0))
+        channel.volume = volume
+
 class PatternBreak(Effect):
     id = 13
+
+    def tick(self):
+        if self.sequencer.tick_counter == (self.sequencer.ticks_per_division - 1):
+            self.sequencer.division_index = self.x * 10 + self.y - 1
+            if self.sequencer.division_index < 0:
+                self.sequencer.division_index = 63
+            else:
+                self.sequencer.sequence_index += 1
+                self.sequencer.pattern_index = self.sequencer.module.pattern_sequence[self.sequencer.sequence_index]
 
 class SetSpeed(Effect):
     id = 15
@@ -100,12 +124,34 @@ class SetFinetuneValue(ExtendedEffect):
 
 class LoopPattern(ExtendedEffect):
     id = 6
+    
+    def __init__(self, x, channel, sequencer):
+        super(LoopPattern, self).__init__(x, channel, sequencer)
+        if self.x == 0:
+            self.sequencer.loop_pattern_division_start = self.sequencer.division_index - 1
+        elif self.sequencer.loop_pattern_counter == 0:
+            self.sequencer.loop_pattern_counter = self.x
+            self.sequencer.loop_pattern_division_stop = self.sequencer.division_index
+        elif self.sequencer.loop_pattern_division_stop == self.sequencer.division_index:
+            self.sequencer.loop_pattern_counter -= 1
+            
+    def tick(self):
+        if self.x > 0 and self.sequencer.tick_counter == (self.sequencer.ticks_per_division - 1):
+            if self.sequencer.loop_pattern_counter > 0 and self.sequencer.loop_pattern_division_stop == self.sequencer.division_index:
+                print "looping"
+                self.sequencer.division_index = self.sequencer.loop_pattern_division_start
+        
 
 class SetTremoloWaveform(ExtendedEffect):
     id = 7
 
 class RetriggerSample(ExtendedEffect):
     id = 9
+    
+    def tick(self):
+        print "RetriggerSample"
+        if self.x != 0 and (self.sequencer.tick_counter % self.x) == 0:
+            self.channel.sample_offset = 0
 
 class FineVolumeSlideUp(ExtendedEffect):
     id = 10
