@@ -151,18 +151,18 @@ class LoopPattern(ExtendedEffect):
     def __init__(self, x, channel, sequencer):
         super(LoopPattern, self).__init__(x, channel, sequencer)
         if self.x == 0:
-            self.sequencer.loop_pattern_division_start = self.sequencer.division_index - 1
-        elif self.sequencer.loop_pattern_counter == 0:
-            self.sequencer.loop_pattern_counter = self.x
-            self.sequencer.loop_pattern_division_stop = self.sequencer.division_index
-        elif self.sequencer.loop_pattern_division_stop == self.sequencer.division_index:
-            self.sequencer.loop_pattern_counter -= 1
+            self.channel.loop_pattern_division_start = self.sequencer.division_index - 1
+        elif self.channel.loop_pattern_counter == 0:
+            self.channel.loop_pattern_counter = self.x
+            self.channel.loop_pattern_division_stop = self.sequencer.division_index
+        elif self.channel.loop_pattern_division_stop == self.sequencer.division_index:
+            self.channel.loop_pattern_counter -= 1
             
     def tick(self):
         if self.x > 0 and self.sequencer.tick_counter == (self.sequencer.ticks_per_division - 1):
-            if self.sequencer.loop_pattern_counter > 0 and self.sequencer.loop_pattern_division_stop == self.sequencer.division_index:
+            if self.channel.loop_pattern_counter > 0 and self.channel.loop_pattern_division_stop == self.sequencer.division_index:
                 print "looping"
-                self.sequencer.division_index = self.sequencer.loop_pattern_division_start
+                self.sequencer.division_index = self.channel.loop_pattern_division_start
         
 
 class SetTremoloWaveform(ExtendedEffect):

@@ -18,6 +18,10 @@ class Channel(object):
         self.vibrato_position = 0
         self.vibrato_speed = 0
         self.vibrato_depth = 0
+
+        self.loop_pattern_counter = 0
+        self.loop_pattern_division_start = 0
+        self.loop_pattern_division_stop = 0
         
     def samples_per_tick(self):
         if self.period == 0:
@@ -71,10 +75,6 @@ class Sequencer(object):
 
         self.ended = False
         
-        #Effects related
-        self.loop_pattern_counter = 0
-        self.loop_pattern_division_start = 0
-        self.loop_pattern_division_stop = 0
         
     def tick(self):
         self.update_state()
