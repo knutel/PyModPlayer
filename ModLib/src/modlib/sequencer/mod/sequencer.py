@@ -20,7 +20,7 @@ class Channel(object):
         
     def tick(self):
         self.effect.tick()
-        if self.sample is None or self.samples_per_tick() == 0:
+        if self.period == 0:
             return "\x80" * 100
         else:
             data = self.sample.get_data(self.sample_offset, self.samples_per_tick())
