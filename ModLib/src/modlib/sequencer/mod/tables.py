@@ -27,3 +27,10 @@ class PeriodTable(object):
         
         
 period_table = PeriodTable()
+
+_half_sine_table = [0, 24, 49, 74, 97,120,141,161,
+              180,197,212,224,235,244,250,253,
+              255,253,250,244,235,224,212,197,
+              180,161,141,120, 97, 74, 49, 24]
+
+sine_table = _half_sine_table + [-value for value in _half_sine_table]
