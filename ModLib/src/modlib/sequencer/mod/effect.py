@@ -154,6 +154,8 @@ class SetSpeed(Effect):
         speed = x * 16 + y
         if speed <= 32:
             sequencer.ticks_per_division = speed
+        else:
+            sequencer.tick_time = 1.0 / ((speed * 4 * 6) / 60)
 
 class ToggleFilter(ExtendedEffect):
     id = 0
