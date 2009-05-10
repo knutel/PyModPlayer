@@ -10,7 +10,6 @@ class Channel(object):
         self.sample_offset = 0
 
         self.volume = 64
-        self.original_volume = 64
         self.period = 0
         self.original_period = 0
         
@@ -47,14 +46,10 @@ class Channel(object):
             self.sample = self.sequencer.module.samples[note.sample_id - 1]
             self.sample_offset = 0
             self.volume = self.sample.volume
-            self.original_volume = self.sample.volume
             if note.period != 0:
                 if self.effect.id != 3 and self.effect.id != 5:
                     self.period = note.period
                 self.original_period = note.period
-        #else:
-        #    self.period = self.original_period
-        #    self.volume = self.original_volume
             
             
     def __str__(self):
