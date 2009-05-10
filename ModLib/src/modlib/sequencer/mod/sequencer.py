@@ -47,7 +47,8 @@ class Channel(object):
             self.volume = self.sample.volume
             self.original_volume = self.sample.volume
             if note.period != 0:
-                self.period = note.period
+                if self.effect.id != 3 and self.effect.id != 5:
+                    self.period = note.period
                 self.original_period = note.period
         #else:
         #    self.period = self.original_period
