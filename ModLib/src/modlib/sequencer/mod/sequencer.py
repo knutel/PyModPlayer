@@ -49,9 +49,9 @@ class Channel(object):
             if note.period != 0:
                 self.period = note.period
                 self.original_period = note.period
-        else:
-            self.period = self.original_period
-            self.volume = self.original_volume
+        #else:
+        #    self.period = self.original_period
+        #    self.volume = self.original_volume
             
             
     def __str__(self):
