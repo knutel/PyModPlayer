@@ -66,14 +66,15 @@ class Vibrato(Effect):
 class ContinueSlideToNotePlusVolumeSlide(Effect):
     id = 5
 
-class ContinueVibratoPlusVolumeSlide(Vibrato):
+class ContinueVibratoPlusVolumeSlide(Effect):
     id = 6
 
     def __init__(self, x, y, channel, sequencer):
-        super(ContinueVibratoPlusVolumeSlide, self).__init__(0, 0, channel, sequencer)
+        super(ContinueVibratoPlusVolumeSlide, self).__init__(x, y, channel, sequencer)
+        self.vibrato = Vibrato(0, 0, channel, sequencer)
         
     def tick(self):
-        super(ContinueVibratoPlusVolumeSlide, self).tick()
+        self.vibrato.tick()
         if self.sequencer.tick_counter != 0:
             if self.x > 0:
                 self.channel.volume = min((64, self.channel.volume + self.x))
