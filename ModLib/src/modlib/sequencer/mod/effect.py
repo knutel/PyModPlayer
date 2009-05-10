@@ -24,13 +24,14 @@ class Arpeggio(Effect):
     id = 0
     
     def tick(self):
-        if self.channel.original_period != 0:
-            if self.sequencer.master_tick_counter % 3 == 0:
-                self.channel.period = self.channel.original_period
-            if self.sequencer.master_tick_counter % 3 == 1:
-                self.channel.period = period_table.finetune(self.channel.original_period, self.x)
-            elif self.sequencer.master_tick_counter % 3 == 2:
-                self.channel.period = period_table.finetune(self.channel.original_period, self.y) 
+        if self.x != 0 and self.y != 0:
+            if self.channel.original_period != 0:
+                if self.sequencer.master_tick_counter % 3 == 0:
+                    self.channel.period = self.channel.original_period
+                if self.sequencer.master_tick_counter % 3 == 1:
+                    self.channel.period = period_table.finetune(self.channel.original_period, self.x)
+                elif self.sequencer.master_tick_counter % 3 == 2:
+                    self.channel.period = period_table.finetune(self.channel.original_period, self.y) 
 
 class SlideUp(Effect):
     id = 1
