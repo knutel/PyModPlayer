@@ -23,6 +23,8 @@ class Channel(object):
         self.loop_pattern_division_start = 0
         self.loop_pattern_division_stop = 0
         
+        self.slide_to_note_speed = 0
+        
     def samples_per_tick(self):
         if self.period == 0:
             return 0

@@ -45,8 +45,34 @@ class SlideUp(Effect):
 class SlideDown(Effect):
     id = 2
 
+    def tick(self):
+        if self.sequencer.tick_counter != 0:
+            self.channel.period += self.x * 16 + self.y
+            if self.channel.period > 856:
+                self.channel.period = 856
+
 class SlideToNote(Effect):
     id = 3
+
+    def __init__(self, x, y, channel, sequencer):
+        print "SlideToNote"
+        super(SlideToNote, self).__init__(x, y, channel, sequencer)
+        slide_to_note_speed = x * 16 + y
+        if slide_to_note_speed != 0:
+            self.channel.slide_to_note_speed = slide_to_note_speed
+
+    def tick(self):
+        if self.sequencer.tick_counter != 0:
+            if self.channel.period < self.channel.original_period:
+                if self.channel.period + self.channel.slide_to_note_speed > self.channel.original_period:
+                    self.channel.period = self.channel.original_period
+                else:
+                    self.channel.period += self.channel.slide_to_note_speed
+            else:
+                if self.channel.period - self.channel.slide_to_note_speed < self.channel.original_period:
+                    self.channel.period = self.channel.original_period
+                else:
+                    self.channel.period -= self.channel.slide_to_note_speed
 
 class Vibrato(Effect):
     id = 4
@@ -163,7 +189,6 @@ class LoopPattern(ExtendedEffect):
     def tick(self):
         if self.x > 0 and self.sequencer.tick_counter == (self.sequencer.ticks_per_division - 1):
             if self.channel.loop_pattern_counter > 0 and self.channel.loop_pattern_division_stop == self.sequencer.division_index:
-                print "looping"
                 self.sequencer.division_index = self.channel.loop_pattern_division_start
         
 
