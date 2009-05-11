@@ -126,6 +126,11 @@ class Tremolo(Effect):
 
 class SetSampleOffset(Effect):
     id = 9
+    
+    def __init__(self, x, y, channel, sequencer):
+        print "SetSampleOffset"
+        super(Tremolo, self).__init__(x, y, channel, sequencer)
+        channel.sample_offset = (x * 4096 + y * 256) * 2
 
 class VolumeSlide(Effect):
     id = 10
