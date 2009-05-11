@@ -1,6 +1,9 @@
 from audioop import mul
 from modlib.sequencer.mod.tables import period_table
 
+def clip(min_, value, max_):
+    return min((max_, max((value, min_))))
+
 class Channel(object):
     def __init__(self, sequencer):
         self.note = None
@@ -9,8 +12,8 @@ class Channel(object):
         self.effect = None
         self.sample_offset = 0
 
-        self.volume = 64
-        self.period = 0
+        self._volume = 64
+        self._period = 0
         self.original_period = 0
         
         #Effects related
@@ -18,12 +21,24 @@ class Channel(object):
         self.vibrato_speed = 0
         self.vibrato_depth = 0
 
+        self.tremolo_speed = 0
+        self.tremolo_depth = 0
+        self.tremolo_position = 0
+
         self.loop_pattern_counter = 0
         self.loop_pattern_division_start = 0
         self.loop_pattern_division_stop = 0
         
         self.slide_to_note_speed = 0
         
+    def _set_volume(self, volume):
+        self._volume = clip(0, volume, 64)
+    volume = property(lambda self: self._volume, _set_volume)
+    
+    def _set_period(self, period):
+        self._period = clip(113, period, 856)
+    period = property(lambda self: self._period, _set_period)    
+    
     def samples_per_tick(self):
         if self.period == 0:
             return 0

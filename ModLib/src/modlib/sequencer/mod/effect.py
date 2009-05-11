@@ -1,5 +1,5 @@
 from modlib.sequencer.mod.tables import period_table, sine_table
-        
+
 class ExtendedEffect(object):
     def __init__(self, x, channel, sequencer):
         self.x = x
@@ -39,8 +39,6 @@ class SlideUp(Effect):
     def tick(self):
         if self.sequencer.tick_counter != 0:
             self.channel.period -= self.x * 16 + self.y
-            if self.channel.period < 113:
-                self.channel.period = 113
 
 class SlideDown(Effect):
     id = 2
@@ -48,8 +46,6 @@ class SlideDown(Effect):
     def tick(self):
         if self.sequencer.tick_counter != 0:
             self.channel.period += self.x * 16 + self.y
-            if self.channel.period > 856:
-                self.channel.period = 856
 
 class SlideToNote(Effect):
     id = 3
@@ -94,15 +90,12 @@ class ContinueSlideToNotePlusVolumeSlide(Effect):
     def __init__(self, x, y, channel, sequencer):
         super(ContinueSlideToNotePlusVolumeSlide, self).__init__(x, y, channel, sequencer)
         self.slide_to_note = SlideToNote(0, 0, channel, sequencer)
+        self.volume_slide = VolumeSlide(x, y, channel, sequencer)
         print "ContinueSlideToNotePlusVolumeSlide"
         
     def tick(self):
         self.slide_to_note.tick()
-        if self.sequencer.tick_counter != 0:
-            if self.x > 0:
-                self.channel.volume = min((64, self.channel.volume + self.x))
-            else:
-                self.channel.volume = max((0, self.channel.volume - self.y))
+        self.volume_slide.tick()
 
 class ContinueVibratoPlusVolumeSlide(Effect):
     id = 6
@@ -110,17 +103,26 @@ class ContinueVibratoPlusVolumeSlide(Effect):
     def __init__(self, x, y, channel, sequencer):
         super(ContinueVibratoPlusVolumeSlide, self).__init__(x, y, channel, sequencer)
         self.vibrato = Vibrato(0, 0, channel, sequencer)
+        self.volume_slide = VolumeSlide(x, y, channel, sequencer)
         
     def tick(self):
         self.vibrato.tick()
-        if self.sequencer.tick_counter != 0:
-            if self.x > 0:
-                self.channel.volume = min((64, self.channel.volume + self.x))
-            else:
-                self.channel.volume = max((0, self.channel.volume - self.y))
+        self.volume_slide.tick()
 
 class Tremolo(Effect):
     id = 7
+
+    def __init__(self, x, y, channel, sequencer):
+        print "Tremolo"
+        super(Tremolo, self).__init__(x, y, channel, sequencer)
+        if x > 0 and y > 0:
+            self.channel.tremolo_speed = x
+            self.channel.tremolo_depth = y
+            self.channel.tremolo_position = 0
+        
+    def tick(self):
+        self.channel.volume = self.channel.original_volume + sine_table[self.channel.tremolo_position % len(sine_table)] * self.channel.tremolo_depth / 64
+        self.channel.tremolo_position += self.channel.tremolo_speed
 
 class SetSampleOffset(Effect):
     id = 9
@@ -131,9 +133,9 @@ class VolumeSlide(Effect):
     def tick(self):
         if self.sequencer.tick_counter != 0:
             if self.x > 0:
-                self.channel.volume = min((64, self.channel.volume + self.x))
+                self.channel.volume = self.channel.volume + self.x
             else:
-                self.channel.volume = max((0, self.channel.volume - self.y))
+                self.channel.volume = self.channel.volume - self.y
 
 class PositionJump(Effect):
     id = 11
@@ -143,8 +145,7 @@ class SetVolume(Effect):
 
     def __init__(self, x, y, channel, sequencer):
         super(SetVolume, self).__init__(x, y, channel, sequencer)
-        volume = max((min((64, x * 16 + y)), 0))
-        channel.volume = volume
+        channel.volume = x * 16 + y
 
 class PatternBreak(Effect):
     id = 13
