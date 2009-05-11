@@ -183,21 +183,38 @@ class SetSpeed(Effect):
 
 class ToggleFilter(ExtendedEffect):
     id = 0
+    
+    #This will never be implemented
 
 class FineslideUp(ExtendedEffect):
     id = 1
     
+    def tick(self):
+        raise NotImplementedError()
+    
 class FineslideDown(ExtendedEffect):
     id = 2
+
+    def tick(self):
+        raise NotImplementedError()
 
 class ToggleGlissando(ExtendedEffect):
     id = 3
 
+    def tick(self):
+        raise NotImplementedError()
+
 class SetVibratoWaveform(ExtendedEffect):
     id = 4
 
+    def tick(self):
+        raise NotImplementedError()
+
 class SetFinetuneValue(ExtendedEffect):
     id = 5
+
+    def tick(self):
+        raise NotImplementedError()
 
 class LoopPattern(ExtendedEffect):
     id = 6
@@ -221,6 +238,9 @@ class LoopPattern(ExtendedEffect):
 class SetTremoloWaveform(ExtendedEffect):
     id = 7
 
+    def tick(self):
+        raise NotImplementedError()
+
 class RetriggerSample(ExtendedEffect):
     id = 9
     
@@ -232,20 +252,38 @@ class RetriggerSample(ExtendedEffect):
 class FineVolumeSlideUp(ExtendedEffect):
     id = 10
 
+    def tick(self):
+        raise NotImplementedError()
+
 class FineVolumeSlideDown(ExtendedEffect):
     id = 11
+
+    def tick(self):
+        raise NotImplementedError()
 
 class CutSample(ExtendedEffect):
     id = 12
 
+    def tick(self):
+        raise NotImplementedError()
+
 class DelaySample(ExtendedEffect):
     id = 13
+
+    def tick(self):
+        raise NotImplementedError()
 
 class DelayPattern(ExtendedEffect):
     id = 14
 
+    def tick(self):
+        raise NotImplementedError()
+
 class InvertLoop(ExtendedEffect):
     id = 15
+
+    def tick(self):
+        raise NotImplementedError()
 
 effects = dict([(klass.__name__, klass) for klass in [Arpeggio,
                                                   SlideUp,
