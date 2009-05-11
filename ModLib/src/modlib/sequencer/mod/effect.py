@@ -129,7 +129,7 @@ class SetSampleOffset(Effect):
     
     def __init__(self, x, y, channel, sequencer):
         print "SetSampleOffset"
-        super(Tremolo, self).__init__(x, y, channel, sequencer)
+        super(SetSampleOffset, self).__init__(x, y, channel, sequencer)
         channel.sample_offset = (x * 4096 + y * 256) * 2
 
 class VolumeSlide(Effect):
