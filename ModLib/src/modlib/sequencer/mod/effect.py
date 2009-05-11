@@ -55,7 +55,6 @@ class SlideToNote(Effect):
     id = 3
 
     def __init__(self, x, y, channel, sequencer):
-        print "SlideToNote"
         super(SlideToNote, self).__init__(x, y, channel, sequencer)
         slide_to_note_speed = x * 16 + y
         if slide_to_note_speed != 0:
@@ -91,6 +90,19 @@ class Vibrato(Effect):
 
 class ContinueSlideToNotePlusVolumeSlide(Effect):
     id = 5
+
+    def __init__(self, x, y, channel, sequencer):
+        super(ContinueSlideToNotePlusVolumeSlide, self).__init__(x, y, channel, sequencer)
+        self.slide_to_note = SlideToNote(0, 0, channel, sequencer)
+        print "ContinueSlideToNotePlusVolumeSlide"
+        
+    def tick(self):
+        self.slide_to_note.tick()
+        if self.sequencer.tick_counter != 0:
+            if self.x > 0:
+                self.channel.volume = min((64, self.channel.volume + self.x))
+            else:
+                self.channel.volume = max((0, self.channel.volume - self.y))
 
 class ContinueVibratoPlusVolumeSlide(Effect):
     id = 6
