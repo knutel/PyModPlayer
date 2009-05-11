@@ -145,6 +145,12 @@ class VolumeSlide(Effect):
 class PositionJump(Effect):
     id = 11
 
+    def tick(self):
+        if self.sequencer.tick_counter == (self.sequencer.ticks_per_division - 1):
+            print "Position jump"
+            self.sequencer.sequence_index = self.x * 16 + self.y - 1
+            self.sequencer.division_index = 63
+             
 class SetVolume(Effect):
     id = 12
 
