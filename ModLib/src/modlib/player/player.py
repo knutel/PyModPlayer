@@ -1,4 +1,4 @@
-from audioop import ratecv, mul, add, bias, tostereo
+from audioop import ratecv, mul, add, bias, tostereo, lin2lin
 import pyglet
 from pyglet.media import StreamingSource, AudioFormat, AudioData
 from modlib.sequencer.mod.sequencer import Sequencer
@@ -7,12 +7,12 @@ from modlib.sequencer.mod.loader import load
 def mix(samples, depth):
     result = samples[0]
     for sample in samples[1:]:
-        result = add(result, sample, 1)
+        result = add(result, sample, depth)
     return result
 
 class SequencerSource(StreamingSource):
     def __init__(self, filename, sequence_index=0):
-        self.audio_format = AudioFormat(2, 8, 44100)
+        self.audio_format = AudioFormat(2, 16, 44100)
         self.sequencer = Sequencer(load(filename))
         self.sequencer.debug_print_division = False
         self.sequencer.debug_print_tick = False
@@ -39,16 +39,17 @@ class SequencerSource(StreamingSource):
             if n in self.muted:
                 sound[n] = "\x80"*100
         for n in range(self.sequencer.module.num_channels):
+            sound[n] = lin2lin(sound[n], 1, 2)
             while True:
-                output[n], self.ratecv_state[n] = ratecv(sound[n], 1, 1, int(len(sound[n]) / tick_time), 44100, self.ratecv_state[n])
-                if len(output[n]) == int(44100 * tick_time):
+                output[n], self.ratecv_state[n] = ratecv(sound[n], 2, 1, int(len(sound[n]) / tick_time) / 2, 44100, self.ratecv_state[n])
+                if len(output[n]) == int(round(44100 * tick_time * 2)):
                     break
-            output[n] = mul(output[n], 1, 1.0 / (self.sequencer.module.num_channels / 2))
-            output[n] = tostereo(output[n], 1, n % 2, (n + 1) % 2)
-        left = mix([output[n] for n in range(0, self.sequencer.module.num_channels, 2)] , 1)
-        right = mix([output[n] for n in range(1, self.sequencer.module.num_channels, 2)] , 1)
-        stereo = add(left, right, 1)
-        audio = AudioData(bias(stereo, 1, 128), int(2 * 44100 * tick_time), self.timestamp, tick_time)
+            output[n] = mul(output[n], 2, 1.0 / (self.sequencer.module.num_channels / 2))
+            output[n] = tostereo(output[n], 2, n % 2, (n + 1) % 2)
+        left = mix([output[n] for n in range(0, self.sequencer.module.num_channels, 2)] , 2)
+        right = mix([output[n] for n in range(1, self.sequencer.module.num_channels, 2)] , 2)
+        stereo = add(left, right, 2)
+        audio = AudioData(stereo, int(2 * 2 * 44100 * tick_time), self.timestamp, tick_time)
         self.timestamp += tick_time
         return audio 
     
