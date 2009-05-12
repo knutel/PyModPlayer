@@ -57,17 +57,16 @@ class SlideToNote(Effect):
             self.channel.slide_to_note_speed = slide_to_note_speed
 
     def tick(self):
-        if self.sequencer.tick_counter != 0:
-            if self.channel.period < self.channel.original_period:
-                if self.channel.period + self.channel.slide_to_note_speed > self.channel.original_period:
-                    self.channel.period = self.channel.original_period
-                else:
-                    self.channel.period += self.channel.slide_to_note_speed
+        if self.channel.period < self.channel.original_period:
+            if self.channel.period + self.channel.slide_to_note_speed > self.channel.original_period:
+                self.channel.period = self.channel.original_period
             else:
-                if self.channel.period - self.channel.slide_to_note_speed < self.channel.original_period:
-                    self.channel.period = self.channel.original_period
-                else:
-                    self.channel.period -= self.channel.slide_to_note_speed
+                self.channel.period += self.channel.slide_to_note_speed
+        else:
+            if self.channel.period - self.channel.slide_to_note_speed < self.channel.original_period:
+                self.channel.period = self.channel.original_period
+            else:
+                self.channel.period -= self.channel.slide_to_note_speed
 
 class Vibrato(Effect):
     id = 4
@@ -91,7 +90,6 @@ class ContinueSlideToNotePlusVolumeSlide(Effect):
         super(ContinueSlideToNotePlusVolumeSlide, self).__init__(x, y, channel, sequencer)
         self.slide_to_note = SlideToNote(0, 0, channel, sequencer)
         self.volume_slide = VolumeSlide(x, y, channel, sequencer)
-        print "ContinueSlideToNotePlusVolumeSlide"
         
     def tick(self):
         self.slide_to_note.tick()
@@ -128,7 +126,6 @@ class SetSampleOffset(Effect):
     id = 9
     
     def __init__(self, x, y, channel, sequencer):
-        print "SetSampleOffset"
         super(SetSampleOffset, self).__init__(x, y, channel, sequencer)
         channel.sample_offset = (x * 4096 + y * 256) * 2
 
@@ -147,7 +144,6 @@ class PositionJump(Effect):
 
     def tick(self):
         if self.sequencer.tick_counter == (self.sequencer.ticks_per_division - 1):
-            print "Position jump"
             self.sequencer.sequence_index = self.x * 16 + self.y - 1
             self.sequencer.division_index = 63
              
@@ -168,7 +164,6 @@ class PatternBreak(Effect):
                 self.sequencer.division_index = 63
             else:
                 self.sequencer.sequence_index += 1
-                self.sequencer.pattern_index = self.sequencer.module.pattern_sequence[self.sequencer.sequence_index]
 
 class SetSpeed(Effect):
     id = 15
@@ -189,14 +184,16 @@ class ToggleFilter(ExtendedEffect):
 class FineslideUp(ExtendedEffect):
     id = 1
     
-    def tick(self):
-        raise NotImplementedError()
+    def __init__(self, x, channel, sequencer):
+        super(FineslideUp, self).__init__(x, channel, sequencer)
+        self.channel.period -= self.x
     
 class FineslideDown(ExtendedEffect):
     id = 2
 
-    def tick(self):
-        raise NotImplementedError()
+    def __init__(self, x, channel, sequencer):
+        super(FineslideDown, self).__init__(x, channel, sequencer)
+        self.channel.period += self.x
 
 class ToggleGlissando(ExtendedEffect):
     id = 3
@@ -245,39 +242,60 @@ class RetriggerSample(ExtendedEffect):
     id = 9
     
     def tick(self):
-        print "RetriggerSample"
         if self.x != 0 and (self.sequencer.tick_counter % self.x) == 0:
             self.channel.sample_offset = 0
 
 class FineVolumeSlideUp(ExtendedEffect):
     id = 10
 
-    def tick(self):
-        raise NotImplementedError()
+    def __init__(self, x, channel, sequencer):
+        super(FineVolumeSlideUp, self).__init__(x, channel, sequencer)
+        self.channel.volume += self.x
 
 class FineVolumeSlideDown(ExtendedEffect):
     id = 11
 
-    def tick(self):
-        raise NotImplementedError()
+    def __init__(self, x, channel, sequencer):
+        super(FineVolumeSlideDown, self).__init__(x, channel, sequencer)
+        self.channel.volume -= self.x
 
 class CutSample(ExtendedEffect):
     id = 12
 
     def tick(self):
-        raise NotImplementedError()
-
+        if self.sequencer.tick_counter >= self.x:
+            self.channel.volume = 0
+    
 class DelaySample(ExtendedEffect):
     id = 13
 
+    def __init__(self, x, channel, sequencer):
+        super(DelaySample, self).__init__(x, channel, sequencer)
+        self.volume = self.channel.volume
+        self.sample_offset = self.channel.sample_offset
+        self.channel.volume = 0
+
     def tick(self):
-        raise NotImplementedError()
+        if self.sequencer.tick_counter == self.x:
+            self.channel.sampe_offset = self.sample_offset
+            self.channel.volume = self.volume
 
 class DelayPattern(ExtendedEffect):
     id = 14
 
+    def __init__(self, x, channel, sequencer):
+        super(DelayPattern, self).__init__(x, channel, sequencer)
+        self.delaying = False
+
     def tick(self):
-        raise NotImplementedError()
+        if self.sequencer.tick_counter == self.sequencer.ticks_per_division - 1:
+            if not self.delaying:
+                self.sequencer.ticks_per_division += self.x
+                self.delaying = True
+            else:
+                self.sequencer.ticks_per_division -= self.x
+                self.sequencer.tick_counter -= self.x
+
 
 class InvertLoop(ExtendedEffect):
     id = 15
