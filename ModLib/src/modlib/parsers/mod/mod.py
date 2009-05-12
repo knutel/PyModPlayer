@@ -15,7 +15,7 @@ sample_info = Struct("sample_info",
                 Embed(
                 BitStruct(None,
                           Padding(4),
-                          Nibble("finetune"))),
+                          BitField("finetune", 4, signed=True))),
                 UBInt8("volume"),
                 WordsToBytesAdapter(UBInt16("repeat_offset")),
                 WordsToBytesAdapter(UBInt16("repeat_length")))
