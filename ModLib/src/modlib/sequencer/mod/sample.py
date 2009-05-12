@@ -30,7 +30,8 @@ class Sample(object):
                     data.append(part)
                     length -= len(part)
                     offset += len(part)
-        else:
+
+        if len(data) == 0:
             data.append("\x80" * 100)
 
         return "".join(data)
