@@ -28,6 +28,8 @@ def sample_length(ctx):
     if ctx._sample_counter > len(ctx.sample_info):
         delattr(ctx, "_sample_counter")
     return length
+
+num_channels = { "M.K.": 4, "M!K!": 4, "6CHN": 6, "8CHN": 8, "12CH": 12, "28CH": 28}
            
 major_effect = Enum(Nibble("major_effect"),
                     Arpeggio = 0,
@@ -77,7 +79,7 @@ channel_data = BitStruct("channel_data",
 
 patterns = Struct("patterns",
                  StrictRepeater(64,
-                                StrictRepeater(4, channel_data)))           
+                                MetaRepeater(lambda ctx: ctx._.num_channels, channel_data)))           
            
 mod = Struct("mod", 
              String("title", 20, padchar="\x00"),
@@ -85,7 +87,8 @@ mod = Struct("mod",
              UBInt8("num_positions"),
              Padding(1),
              StrictRepeater(128, ULInt8("pattern_table")),
-             OneOf(String("signature", 4), ["M.K.", "M!K!"]),
+             OneOf(String("signature", 4), num_channels.keys()),
+             Value("num_channels", lambda ctx: num_channels[ctx.signature]),
              MetaRepeater(lambda ctx: int(max(ctx.pattern_table)) + 1,
                           patterns),
              MetaRepeater(lambda ctx: len(ctx.sample_info),

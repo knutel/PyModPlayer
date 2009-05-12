@@ -31,7 +31,7 @@ def load(filename):
         patterns = extract_patterns(module)
         samples = extract_samples(module)
         pattern_order = module.pattern_table
-        return Module(module.title, module.num_positions, patterns, samples, pattern_order)
+        return Module(module.title, module.num_positions, module.num_channels, patterns, samples, pattern_order)
 
 if __name__ == "__main__":
     module = load("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/MOUSEMOD.MOD")

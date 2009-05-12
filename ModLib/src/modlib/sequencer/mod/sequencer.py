@@ -95,7 +95,7 @@ class Sequencer(object):
         #self.tick_time = 1.0 / 60 #NTSC
         self.ticks_per_division = 6
         
-        self.channels = [Channel(self) for n in range(4)]
+        self.channels = [Channel(self) for n in range(self.module.num_channels)]
 
         self.ended = False
         
