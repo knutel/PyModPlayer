@@ -34,7 +34,8 @@ class SequencerSource(StreamingSource):
         sound = self.sequencer.tick()
         tick_time = self.sequencer.tick_time
         if sound is None:
-            return None
+            pyglet.app.exit()
+            return
         for n in range(self.sequencer.module.num_channels):
             if n in self.muted:
                 sound[n] = "\x80"*100
