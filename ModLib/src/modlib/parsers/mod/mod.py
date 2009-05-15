@@ -11,17 +11,6 @@ class WordsToBytesAdapter(Adapter):
     def _encode(self, obj, ctx):
         return obj / 2
 
-sample_info = Struct("sample_info",
-                String("name", 22, padchar="\x00"),
-                WordsToBytesAdapter(UBInt16("length")),
-                Embed(
-                BitStruct(None,
-                          Padding(4),
-                          BitField("finetune", 4, signed=True))),
-                UBInt8("volume"),
-                WordsToBytesAdapter(UBInt16("repeat_offset")),
-                WordsToBytesAdapter(UBInt16("repeat_length")))
-     
 def sample_length(ctx):
     if not hasattr(ctx, "_sample_counter"):
         ctx._sample_counter = 0
@@ -31,7 +20,25 @@ def sample_length(ctx):
         delattr(ctx, "_sample_counter")
     return length
 
-num_channels = { "M.K.": 4, "M!K!": 4, "6CHN": 6, "8CHN": 8, "12CH": 12, "28CH": 28}
+signature_vs_channels = {"M.K.": 4, 
+                         "M!K!": 4, 
+                         "6CHN": 6, 
+                         "8CHN": 8, 
+                         "12CH": 12, 
+                         "28CH": 28, 
+                         "FLT4": 4,
+                        }
+
+sample_info = Struct("sample_info",
+                String("name", 22, padchar="\x00"),
+                WordsToBytesAdapter(UBInt16("length")),
+                Embed(BitStruct(None,
+                          Padding(4),
+                          BitField("finetune", 4, signed=True))),
+                UBInt8("volume"),
+                WordsToBytesAdapter(UBInt16("repeat_offset")),
+                WordsToBytesAdapter(UBInt16("repeat_length")))
+     
            
 major_effect = Enum(Nibble("major_effect"),
                     Arpeggio = 0,
@@ -89,8 +96,8 @@ mod = Struct("mod",
              UBInt8("num_positions"),
              Padding(1),
              StrictRepeater(128, ULInt8("pattern_table")),
-             OneOf(String("signature", 4), num_channels.keys()),
-             Value("num_channels", lambda ctx: num_channels[ctx.signature]),
+             OneOf(String("signature", 4), signature_vs_channels.keys()),
+             Value("num_channels", lambda ctx: signature_vs_channels[ctx.signature]),
              MetaRepeater(lambda ctx: int(max(ctx.pattern_table)) + 1,
                           patterns),
              MetaRepeater(lambda ctx: len(ctx.sample_info),
