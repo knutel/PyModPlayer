@@ -2,6 +2,8 @@ from __future__ import with_statement
 
 from construct import *
 
+__version__ = "$Id$"
+
 class WordsToBytesAdapter(Adapter):
     def _decode(self, obj, ctx):
         return obj * 2
