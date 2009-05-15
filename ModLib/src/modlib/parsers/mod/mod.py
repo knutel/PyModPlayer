@@ -108,5 +108,5 @@ mod = Struct("mod",
 if __name__ == "__main__":
     import sys
     with file(sys.argv[1], "rb") as f:
-          print mod.parse_stream(f)
+        print mod.parse_stream(f)
 
