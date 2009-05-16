@@ -1,9 +1,6 @@
 from audioop import mul
 from modlib.sequencer.mod.tables import period_table
 from modlib.sequencer.mod.effect import SlideToNote, ContinueSlideToNotePlusVolumeSlide, SetSampleOffset
-from modlib.sequencer.mod.effect import SlideToNote
-from modlib.sequencer.mod.effect import ContinueSlideToNotePlusVolumeSlide
-from modlib.sequencer.mod.effect import SetSampleOffset
 
 def clip(min_, value, max_):
     return min((max_, max((value, min_))))
@@ -141,30 +138,3 @@ class Sequencer(object):
                                                                  ", ".join(["%3i" % (channel.period,) for channel in self.channels]),
                                                                  ", ".join(["%3i" % (channel.volume,) for channel in self.channels]))
             
-if __name__ == "__main__":
-    from modlib.sequencer.mod.loader import load
-    import glob
-    
-    #filenames = ["/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/MOUSEMOD.MOD",
-    #    "/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/NIM.MOD",
-    #    "/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/NOWHAT.MOD",
-    #    "/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod2/OCEAN2ND.MOD",
-    #    "/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod2/OCEAN.MOD",
-    #    "/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/CREATURE.MOD",
-    #    "/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/ASSASIN.MOD",
-    #    "/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod2/COMIC3.MOD",
-    #    "/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod2/PARALLAX.MOD",
-    #    "/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/RAINYDAY.MOD"]
-    
-    filenames = (glob.glob("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/*.MOD") +
-                glob.glob("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod2/*.MOD") +
-                glob.glob("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod3/*.MOD") + 
-                glob.glob("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod4/*.MOD"))
-    for filename in filenames:
-        print filename
-        try:
-            seq = Sequencer(load(filename))
-            while seq.tick():
-                pass
-        except Exception, e:
-            print "%s failed with error: %s" % (filename, e)

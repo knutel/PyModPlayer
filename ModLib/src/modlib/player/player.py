@@ -58,29 +58,8 @@ class SequencerSource(StreamingSource):
         self.muted = channels
         
 if __name__ == "__main__":
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/MOUSEMOD.MOD")
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/NIM.MOD")
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/NOWHAT.MOD")
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod2/OCEAN2ND.MOD")
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod2/OCEAN.MOD")
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/CREATURE.MOD")
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/ASSASIN.MOD")
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod2/COMIC3.MOD")
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod2/PARALLAX.MOD")
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/RAINYDAY.MOD")
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/GUITARSL.MOD", 9) #Tremolo
-    #Something fishy s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/SHOCK.MOD") #Tremolo
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/BRASSCON.MOD") #FLT4
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/BUD.MOD") #6CHN
-    # ecco sounds strange s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/ANTARES.MOD") #8CHN
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/PAINTRO.MOD") #8CHN
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/SIMPACT.MOD") #8CHN
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/WAIT7.MOD") #8CHN
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod4/CHIME94.MOD") #8CHN
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/SARA.MOD") #12CH
-    s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/DOPE.MOD") #28CH
-    #s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/SW-OPUS1.MOD") #28CH
-    # does not load: s = SequencerSource("/Volumes/Stuff/old_backup_cds/cd2/SCENE/Mod/STARDME.MOD")
+    import sys
+    s = SequencerSource(sys.argv[1])
     #s.mute((0, 2, 3))
     s.play()
     pyglet.app.run()
