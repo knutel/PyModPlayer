@@ -1,7 +1,5 @@
 from construct import Adapter
 
-__version__ = "$Id$"
-
 class WordsToBytesAdapter(Adapter):
     def _decode(self, obj, ctx):
         return obj * 2
