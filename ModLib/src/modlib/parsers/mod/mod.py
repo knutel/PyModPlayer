@@ -2,8 +2,6 @@ from __future__ import with_statement
 
 from construct import *
 from .utils import WordsToBytesAdapter, sample_length
- 
-__version__ = "$Id$"
 
 signature_vs_channels = {"M.K.": 4, 
                          "M!K!": 4, 
