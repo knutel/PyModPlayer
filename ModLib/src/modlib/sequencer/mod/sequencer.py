@@ -5,6 +5,8 @@ from modlib.sequencer.mod.effect import SlideToNote, ContinueSlideToNotePlusVolu
 def clip(min_, value, max_):
     return min((max_, max((value, min_))))
 
+dummy_sample = "\x80" * 100
+
 class Channel(object):
     def __init__(self, sequencer):
         self.note = None
@@ -40,7 +42,9 @@ class Channel(object):
         self._period = clip(113, period, 856)
     period = property(lambda self: self._period, _set_period)
     
-    tuned_period = property(lambda self: self.period * pow(2, -self.sample.finetune * 1.0 / (12 * 8)))    
+    def _get_tuned_period(self):
+        return self.period * pow(2, -self.sample.finetune * 1.0 / (12 * 8))
+    tuned_period = property(_get_tuned_period)    
     
     original_volume = property(lambda self: self.sample.volume)
     
@@ -48,12 +52,14 @@ class Channel(object):
         if self.period == 0:
             return 0
         else:
-            return int(self.sequencer.tick_time * self.sequencer.system_clock / (2.0 * self.tuned_period))
+            return int(self.sequencer.tick_time * 
+                       self.sequencer.system_clock / 
+                       (2.0 * self.tuned_period))
 
     def tick(self):
         self.effect.tick()
         if self.period == 0 or self.sample is None:
-            return "\x80" * 100
+            return dummy_sample
         else:
             data = self.sample.get_data(self.sample_offset, self.samples_per_tick())
             self.sample_offset += self.samples_per_tick()
@@ -69,7 +75,8 @@ class Channel(object):
         if note.period != 0:
             if not isinstance(self.effect, SetSampleOffset):
                 self.sample_offset = 0
-            if not (isinstance(self.effect, SlideToNote) or isinstance(self.effect, ContinueSlideToNotePlusVolumeSlide)):
+            if not (isinstance(self.effect, SlideToNote) or
+                    isinstance(self.effect, ContinueSlideToNotePlusVolumeSlide)):
                 self.period = note.period
             self.original_period = note.period
             
@@ -99,11 +106,21 @@ class Sequencer(object):
         self.debug_print_division = True
         self.debug_print_tick = True
         
-    pattern_index = property(lambda self: self.module.pattern_sequence[self.sequence_index])
-    pattern = property(lambda self: self.module.patterns[self.pattern_index])
+    def _get_pattern_index(self):
+        return self.module.pattern_sequence[self.sequence_index]
+    pattern_index = property(_get_pattern_index)
+    
+    def _get_pattern(self):
+        return self.module.patterns[self.pattern_index]
+    pattern = property(_get_pattern)
+    
+    def _get_channel_data(self):
+        return self.pattern.divisions[self.division_index].channel_data
+    channel_data = property(_get_channel_data)
         
     def tick(self):
-        self.update_state()
+        if not self.ended:
+            self.increment_tick_counter()
         if not self.ended:
             data = [channel.tick() for channel in self.channels]
             #print [len(d) for d in data]
@@ -111,30 +128,43 @@ class Sequencer(object):
                 self.ended = True
             return data
     
-    def update_state(self):
-        if not self.ended:
-            self.tick_counter += 1
-            self.master_tick_counter += 1
-            if self.tick_counter == self.ticks_per_division:
-                self.tick_counter = 0
-                self.division_index += 1
-                if self.division_index == 64:
-                    self.division_index = 0
-                    self.sequence_index += 1
-                    self.position_counter += 1
-                    if self.position_counter > self.module.num_positions:
-                        self.ended = True
-                        return
-                    self.loop_pattern_counter = 0
-                    self.loop_pattern_division_start = 0
-                    self.loop_pattern_division_stop = 0
-                for index, channel in enumerate(self.channels):
-                    channel.new_note(self.pattern.divisions[self.division_index].channel_data[index])
-                    
-                if self.debug_print_division:
-                    print "Position: %3i/%3i, Sequence: %3i, Pattern: %3i, Division: %2i, %s" % (self.position_counter, self.module.num_positions, self.sequence_index, self.pattern_index, self.division_index, [str(channel) for channel in self.channels])
-            if self.debug_print_tick:
-                print "Tick counter: %2i, Period: %s, Volume: %s" % (self.tick_counter, 
-                                                                 ", ".join(["%3i" % (channel.period,) for channel in self.channels]),
-                                                                 ", ".join(["%3i" % (channel.volume,) for channel in self.channels]))
+    def increment_tick_counter(self):
+        self.tick_counter += 1
+        self.master_tick_counter += 1
+        if self.tick_counter == self.ticks_per_division:
+            self.tick_counter = 0
+            self.increment_division_index()
+        if self.debug_print_tick:
+            print "Tick counter: %2i, Period: %s, Volume: %s" % \
+                (self.tick_counter,
+                ", ".join(["%3i" % (channel.period,) for channel in self.channels]),
+                ", ".join(["%3i" % (channel.volume,) for channel in self.channels]))
+        
+    def increment_division_index(self):
+        self.division_index += 1
+        if self.division_index == 64:
+            self.division_index = 0
+            self.increment_sequence_index()
+
+        for index, channel in enumerate(self.channels):
+            channel.new_note(self.channel_data[index])
             
+        if self.debug_print_division:
+            print "Position: %3i/%3i, Sequence: %3i, Pattern: %3i, Division: %2i, %s" % \
+                (self.position_counter, 
+                 self.module.num_positions, 
+                 self.sequence_index, 
+                 self.pattern_index, 
+                 self.division_index, 
+                 [str(channel) for channel in self.channels])
+
+    def increment_sequence_index(self):
+        self.sequence_index += 1
+        self.position_counter += 1
+        if self.position_counter > self.module.num_positions:
+            self.ended = True
+            return
+        self.loop_pattern_counter = 0
+        self.loop_pattern_division_start = 0
+        self.loop_pattern_division_stop = 0
+        
