@@ -76,9 +76,7 @@ class SequencerSource(StreamingSource):
         output = self._ratecv(sound)
         output = self._scale(output)
         output = self._tostereo(output)
-        left = mix(output[::2], self.bytes)
-        right = mix(output[1::2], self.bytes)
-        stereo = add(left, right, self.bytes)
+        stereo = mix(output, self.bytes)
         audio = AudioData(stereo, self.audio_length, self.timestamp, self.tick_time)
         self.timestamp += self.tick_time
         return audio 
